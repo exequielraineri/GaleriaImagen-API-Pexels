@@ -1,31 +1,37 @@
-import { createClient } from "pexels";
 import { lazy, useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./app.css";
+import Aos from 'aos';
+import 'aos/dist/aos.css';
+
+
 function App() {
+
   const API_KEY = "wTtiqvGxGBDiR6KAd4odsCdpy3p8jbOhgTjNzCIM8LKuwuF2gqDOwaSQ";
-  const client = createClient(API_KEY); 
   const [fotosApi,setFotosApi]=useState([]);
   const [fotoPop,setFotoPop]=useState(null);
 
   const [pagina,setPagina]=useState(1);
 
-  const fetchPhotos=async()=>{ 
-    await client.photos.curated({
-      page:pagina,
-      per_page:15,
-    })
-    .then((data) => {
-      setFotosApi(data.photos);
-    })
-    .catch(err=>console.log(err));
-
+  const fetchPhotosApi=async()=>{
+      await fetch('https://api.pexels.com/v1/curated?page=' + pagina + '&per_page=15', {
+        headers: {
+          'Authorization': API_KEY,
+        },
+      })
+      .then(res=>res.json())
+      .then(data=>{
+        setFotosApi(data.photos);
+      })
+      .catch(err=>console.log(err));    
   }
 
 
+
   useEffect(()=>{
-      fetchPhotos();
-  },[pagina]);
+      Aos.init();
+      fetchPhotosApi();
+    },[pagina]);
 
   return (
     <main className="bloque-galeria">
@@ -34,7 +40,7 @@ function App() {
       <section className="section-fotos">
         {fotosApi.map((elem) => {
           return (
-            <article key={elem.id} onClick={()=>setFotoPop(elem)}>
+            <article data-aos="fade-up" key={elem.id} onClick={()=>setFotoPop(elem)}>
               <img
                 src={elem.src.original}
                 alt={elem.alt}
